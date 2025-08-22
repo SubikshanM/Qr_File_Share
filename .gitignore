@@ -1,0 +1,11 @@
+# Ignore Node.js dependencies
+node_modules/
+
+# Ignore files uploaded by the app
+uploads/
+
+# Ignore macOS files
+.DS_Store
+
+# Ignore Visual Studio Code files
+.vscode/

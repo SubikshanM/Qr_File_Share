@@ -26,7 +26,11 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  // This line sets the file size limit to 250 MB (in bytes)
+  limits: { fileSize: 250 * 1024 * 1024 } 
+});
 
 // Serve static files from a public directory (for the frontend HTML/CSS/JS)
 app.use(express.static('public'));

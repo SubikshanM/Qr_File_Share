@@ -1,42 +1,118 @@
 body {
-    font-family: sans-serif;
+    font-family: Arial, sans-serif;
+    background-color: #0b0c2a; /* Dark Blue */
+    color: #f0f0ff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #1a1c3d; /* Lighter Blue */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 1.5rem;
+    color: #f0f0ff;
+    margin-bottom: 20px;
+}
+
+.instruction {
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    margin-bottom: 5px;
+    font-size: 1rem;
+    color: #cccccc;
+}
+
+#fileTypeSelect, #fileInput {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+#fileInput:disabled {
+    background-color: #252525;
+    color: #777;
+    cursor: not-allowed;
+}
+
+#preview-and-button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: #f4f4f9;
-    margin: 0;
+    gap: 15px;
+    margin-top: 20px;
 }
-.container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+#file-name-preview {
+    font-size: 1rem;
+    color: #e0e0e0;
     text-align: center;
 }
-input[type="file"] {
-    border: 2px dashed #ccc;
-    padding: 1rem;
-    width: 100%;
-    cursor: pointer;
-    margin-bottom: 1rem;
+
+#file-name-preview p {
+    margin: 0;
 }
+
+#fileName {
+    font-weight: bold;
+}
+
 button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
+    background-color: #7d5fff; /* Bright Purple */
+    color: #fff;
+    padding: 12px 24px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 300px;
 }
+
 button:hover {
-    background-color: #45a049;
+    background-color: #6a49d9;
 }
-img#qr-code {
-    max-width: 250px;
-    margin-top: 1.5rem;
-    border: 1px solid #ddd;
-    padding: 5px;
-    border-radius: 5px;
+
+#qr-code-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+#qr-code {
+    max-width: 200px;
+    height: auto;
+    border: 5px solid #7d5fff; /* Purple border */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }

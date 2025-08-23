@@ -8,13 +8,34 @@
 </head>
 <body>
     <div class="container">
-        <h1>Upload a File to Share</h1>
+        <h1>Share files instantly by uploading and scanning a QR.</h1>
         <form id="uploadForm">
-            <input type="file" id="fileInput" name="file" required>
-            <button type="submit">Generate QR Code</button>
+            <p class="instruction">Select a file of size within 250 MB</p>
+            <div class="input-group">
+                <label for="fileTypeSelect">File Type:</label>
+                <select id="fileTypeSelect">
+                    <option value="">-- Select a file type --</option>
+                    <option value=".pdf">PDF</option>
+                    <option value="image/*">Images</option>
+                    <option value=".doc,.docx,.xlsx,.ppt,.pptx">Documents</option>
+                    <option value="video/*">Videos</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="fileInput">File:</label>
+                <input type="file" id="fileInput" name="file" required disabled>
+            </div>
         </form>
         <div id="result">
-            <img id="qr-code" style="display: none;" alt="QR Code">
+            <div id="preview-and-button">
+                <div id="file-name-preview" style="display: none;">
+                    <p>Selected File: <span id="fileName"></span></p>
+                </div>
+                <button type="submit" form="uploadForm">Generate QR Code</button>
+            </div>
+            <div id="qr-code-container">
+                <img id="qr-code" style="display: none;" alt="QR Code">
+            </div>
         </div>
     </div>
     <script src="script.js"></script>

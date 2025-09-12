@@ -4,6 +4,14 @@ const fileInput = document.getElementById('fileInput');
 const qrCodeImg = document.getElementById('qr-code');
 const fileNamePreview = document.getElementById('file-name-preview');
 const fileNameSpan = document.getElementById('fileName');
+const loadingSpinner = document.getElementById('loading-spinner');
+
+// Function to update button disabled states
+function updateButtonStates() {
+    const fileTypeSelected = fileTypeSelect.value !== '';
+    const fileSelected = fileInput.files.length > 0;
+    document.querySelector('button[type="submit"]').disabled = !(fileTypeSelected && fileSelected);
+}
 
 // Enable file input when a file type is selected
 fileTypeSelect.addEventListener('change', (e) => {
@@ -14,9 +22,10 @@ fileTypeSelect.addEventListener('change', (e) => {
         fileInput.disabled = true;
         fileInput.accept = '';
     }
+    updateButtonStates();
 });
 
-// Show the selected file's name
+// Show the selected file's name and update button states
 fileInput.addEventListener('change', () => {
     if (fileInput.files.length > 0) {
         fileNameSpan.textContent = fileInput.files[0].name;
@@ -24,10 +33,15 @@ fileInput.addEventListener('change', () => {
     } else {
         fileNamePreview.style.display = 'none';
     }
+    updateButtonStates();
 });
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Show the loading spinner and hide the QR code
+    loadingSpinner.style.display = 'block';
+    qrCodeImg.style.display = 'none';
 
     const currentUrl = window.location.origin;
 
@@ -49,5 +63,11 @@ form.addEventListener('submit', async (e) => {
     } catch (error) {
         console.error('Error:', error);
         alert('File upload failed.');
+    } finally {
+        // Hide the loading spinner when the process is complete
+        loadingSpinner.style.display = 'none';
     }
 });
+
+// Initial state update when the page loads
+document.addEventListener('DOMContentLoaded', updateButtonStates);

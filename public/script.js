@@ -6,12 +6,6 @@ const fileNamePreview = document.getElementById('file-name-preview');
 const fileNameSpan = document.getElementById('fileName');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-// MODIFIED ELEMENTS: Removed shortenedLinkInput
-const linkContainer = document.getElementById('link-container');
-const fullLinkInput = document.getElementById('fullLink');
-const copyButton = document.getElementById('copyButton');
-
-
 // Function to update button disabled states
 function updateButtonStates() {
     const fileTypeSelected = fileTypeSelect.value !== '';
@@ -45,10 +39,6 @@ fileInput.addEventListener('change', () => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Reset visibility
-    linkContainer.style.display = 'none'; 
-    fullLinkInput.value = '';
-    
     // Show the loading spinner and hide the QR code
     loadingSpinner.style.display = 'block';
     qrCodeImg.style.display = 'none';
@@ -66,19 +56,10 @@ form.addEventListener('submit', async (e) => {
         });
         const data = await response.json();
 
-        // Check for required data
-        if (data.qrCodeUrl && data.fileUrl) {
-            // Display QR Code
+        if (data.qrCodeUrl) {
             qrCodeImg.src = data.qrCodeUrl;
             qrCodeImg.style.display = 'block';
-            
-            // Display Full Link
-            fullLinkInput.value = data.fileUrl;
-            linkContainer.style.display = 'flex';
-        } else {
-            alert('File uploaded, but the download URL was missing from the server response.');
         }
-
     } catch (error) {
         console.error('Error:', error);
         alert('File upload failed.');
@@ -86,25 +67,6 @@ form.addEventListener('submit', async (e) => {
         // Hide the loading spinner when the process is complete
         loadingSpinner.style.display = 'none';
     }
-});
-
-// MODIFIED: Copy Full URL Functionality
-copyButton.addEventListener('click', () => {
-    fullLinkInput.select();
-    fullLinkInput.setSelectionRange(0, 99999); 
-    
-    navigator.clipboard.writeText(fullLinkInput.value)
-        .then(() => {
-            // Provide visual feedback
-            copyButton.textContent = 'Copied!';
-            setTimeout(() => {
-                copyButton.textContent = 'Copy Full URL';
-            }, 2000);
-        })
-        .catch(err => {
-            console.error('Could not copy text: ', err);
-            alert('Failed to copy link. Please copy it manually.');
-        });
 });
 
 // Initial state update when the page loads

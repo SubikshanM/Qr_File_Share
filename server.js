@@ -1,12 +1,11 @@
-// server.js (Finalized with is.gd Link Shortening)
+// server.js (Finalized - Simple Full Link)
 
 const express = require('express');
 const multer = require('multer');
 const qrcode = require('qrcode');
 const path = require('path');
 const fs = require('fs');
-// Dependency: node-fetch is used for external API calls
-const fetch = require('node-fetch'); 
+// MODIFIED: REMOVED const fetch = require('node-fetch');
 
 const app = express();
 // Using environment variable PORT for hosting, falling back to 3000 locally
@@ -27,7 +26,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    // MODIFIED: Use a unique filename to prevent collisions
+    // MODIFIED: Use a unique filename
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + path.extname(file.originalname));
   }
@@ -52,7 +51,6 @@ app.get('/download/:filename', (req, res) => {
   res.download(filePath, (err) => {
     if (err) {
       console.error('Download error:', err);
-      // Original logic included file deletion here, but we are keeping it simple for now.
       res.status(404).send('File not found or download failed.');
     }
     console.log(`File downloaded: ${req.params.filename}`);
@@ -72,39 +70,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // 1. Construct the Full Download URL (fileUrl)
     const fileUrl = `${host}/download/${filename}`;
 
-    let shortenedLink = fileUrl; // Default to full link (fallback)
-
-    // 2. Call the is.gd API (New Link Shortener)
-    const ISGD_URL = `https://is.gd/create.php?url=${encodeURIComponent(fileUrl)}&format=json`;
-
-    try {
-        const shorteningResponse = await fetch(ISGD_URL); 
-        
-        if (shorteningResponse.ok) {
-            const data = await shorteningResponse.json();
-            
-            // is.gd returns a JSON object with a 'shorturl' field
-            if (data.shorturl && !data.errormsg) {
-                shortenedLink = data.shorturl;
-            } else {
-                console.warn("is.gd API failed to shorten link. Error:", data.errormsg || 'Unknown reason');
-            }
-        } else {
-            console.warn("is.gd API failed with status:", shorteningResponse.status);
-        }
-    } catch (shorteningError) {
-        // Catches network/connection errors (likely firewall issue on hosting)
-        console.error("Error connecting to is.gd:", shorteningError.message);
-    }
-
-    // 3. Generate the QR code as a data URL
+    // 2. Generate the QR code as a data URL
     const qrCodeUrl = await qrcode.toDataURL(fileUrl);
     
-    // 4. Send all three back to the client
+    // 3. Send only the full link back to the client
     res.json({ 
         fileUrl: fileUrl, 
-        qrCodeUrl: qrCodeUrl,
-        shortenedLink: shortenedLink 
+        qrCodeUrl: qrCodeUrl
     });
 
   } catch (err) {

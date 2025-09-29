@@ -152,7 +152,7 @@ button:hover {
     margin-top: 25px; /* Adds space below the button */
 }
 
-/* ADDED STYLES FOR LINK CONTAINER */
+/* MODIFIED STYLES FOR LINK CONTAINER (Simplified for one link) */
 #link-container {
     display: flex;
     flex-direction: column;
@@ -177,7 +177,7 @@ button:hover {
     text-align: left;
 }
 
-#shortenedLink, #fullLink {
+#fullLink {
     width: 100%;
     padding: 10px;
     border-radius: 6px;

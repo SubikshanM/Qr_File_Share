@@ -6,9 +6,8 @@ const fileNamePreview = document.getElementById('file-name-preview');
 const fileNameSpan = document.getElementById('fileName');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-// ADDED ELEMENTS
+// MODIFIED ELEMENTS: Removed shortenedLinkInput
 const linkContainer = document.getElementById('link-container');
-const shortenedLinkInput = document.getElementById('shortenedLink');
 const fullLinkInput = document.getElementById('fullLink');
 const copyButton = document.getElementById('copyButton');
 
@@ -46,9 +45,8 @@ fileInput.addEventListener('change', () => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // ADDED: Reset visibility of link elements
+    // Reset visibility
     linkContainer.style.display = 'none'; 
-    shortenedLinkInput.value = '';
     fullLinkInput.value = '';
     
     // Show the loading spinner and hide the QR code
@@ -68,26 +66,17 @@ form.addEventListener('submit', async (e) => {
         });
         const data = await response.json();
 
-        // Check for all required data from the server
-        if (data.qrCodeUrl && data.fileUrl && data.shortenedLink) {
+        // Check for required data
+        if (data.qrCodeUrl && data.fileUrl) {
             // Display QR Code
             qrCodeImg.src = data.qrCodeUrl;
             qrCodeImg.style.display = 'block';
             
-            // Display BOTH Links
+            // Display Full Link
             fullLinkInput.value = data.fileUrl;
-            shortenedLinkInput.value = data.shortenedLink;
-            linkContainer.style.display = 'flex';
-
-        } else if (data.qrCodeUrl && data.fileUrl) {
-             // Fallback if shortening fails
-            qrCodeImg.src = data.qrCodeUrl;
-            qrCodeImg.style.display = 'block';
-            fullLinkInput.value = data.fileUrl;
-            shortenedLinkInput.value = "Shortening Failed. Use Full Link.";
             linkContainer.style.display = 'flex';
         } else {
-            alert('File uploaded, but essential link data was missing from the server.');
+            alert('File uploaded, but the download URL was missing from the server response.');
         }
 
     } catch (error) {
@@ -99,18 +88,17 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// ADDED: Copy Button Functionality (Copies the Shortened Link)
+// MODIFIED: Copy Full URL Functionality
 copyButton.addEventListener('click', () => {
-    shortenedLinkInput.select();
-    shortenedLinkInput.setSelectionRange(0, 99999); 
+    fullLinkInput.select();
+    fullLinkInput.setSelectionRange(0, 99999); 
     
-    // Use the Clipboard API to copy the text
-    navigator.clipboard.writeText(shortenedLinkInput.value)
+    navigator.clipboard.writeText(fullLinkInput.value)
         .then(() => {
             // Provide visual feedback
             copyButton.textContent = 'Copied!';
             setTimeout(() => {
-                copyButton.textContent = 'Copy Shortened Link';
+                copyButton.textContent = 'Copy Full URL';
             }, 2000);
         })
         .catch(err => {

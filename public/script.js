@@ -6,6 +6,13 @@ const fileNamePreview = document.getElementById('file-name-preview');
 const fileNameSpan = document.getElementById('fileName');
 const loadingSpinner = document.getElementById('loading-spinner');
 
+// ADDED ELEMENTS
+const linkContainer = document.getElementById('link-container');
+const shortenedLinkInput = document.getElementById('shortenedLink');
+const fullLinkInput = document.getElementById('fullLink');
+const copyButton = document.getElementById('copyButton');
+
+
 // Function to update button disabled states
 function updateButtonStates() {
     const fileTypeSelected = fileTypeSelect.value !== '';
@@ -39,6 +46,11 @@ fileInput.addEventListener('change', () => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // ADDED: Reset visibility of link elements
+    linkContainer.style.display = 'none'; 
+    shortenedLinkInput.value = '';
+    fullLinkInput.value = '';
+    
     // Show the loading spinner and hide the QR code
     loadingSpinner.style.display = 'block';
     qrCodeImg.style.display = 'none';
@@ -56,10 +68,28 @@ form.addEventListener('submit', async (e) => {
         });
         const data = await response.json();
 
-        if (data.qrCodeUrl) {
+        // Check for all required data from the server
+        if (data.qrCodeUrl && data.fileUrl && data.shortenedLink) {
+            // Display QR Code
             qrCodeImg.src = data.qrCodeUrl;
             qrCodeImg.style.display = 'block';
+            
+            // Display BOTH Links
+            fullLinkInput.value = data.fileUrl;
+            shortenedLinkInput.value = data.shortenedLink;
+            linkContainer.style.display = 'flex';
+
+        } else if (data.qrCodeUrl && data.fileUrl) {
+             // Fallback if shortening fails
+            qrCodeImg.src = data.qrCodeUrl;
+            qrCodeImg.style.display = 'block';
+            fullLinkInput.value = data.fileUrl;
+            shortenedLinkInput.value = "Shortening Failed. Use Full Link.";
+            linkContainer.style.display = 'flex';
+        } else {
+            alert('File uploaded, but essential link data was missing from the server.');
         }
+
     } catch (error) {
         console.error('Error:', error);
         alert('File upload failed.');
@@ -67,6 +97,26 @@ form.addEventListener('submit', async (e) => {
         // Hide the loading spinner when the process is complete
         loadingSpinner.style.display = 'none';
     }
+});
+
+// ADDED: Copy Button Functionality (Copies the Shortened Link)
+copyButton.addEventListener('click', () => {
+    shortenedLinkInput.select();
+    shortenedLinkInput.setSelectionRange(0, 99999); 
+    
+    // Use the Clipboard API to copy the text
+    navigator.clipboard.writeText(shortenedLinkInput.value)
+        .then(() => {
+            // Provide visual feedback
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = 'Copy Shortened Link';
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Could not copy text: ', err);
+            alert('Failed to copy link. Please copy it manually.');
+        });
 });
 
 // Initial state update when the page loads

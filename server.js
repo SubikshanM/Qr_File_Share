@@ -1,15 +1,16 @@
-// server.js (Finalized with TinyURL Link Shortening)
+// server.js (Finalized with is.gd Link Shortening)
 
 const express = require('express');
 const multer = require('multer');
 const qrcode = require('qrcode');
 const path = require('path');
 const fs = require('fs');
-// You might need to install 'node-fetch' if your Node.js version is older than 18
+// Dependency: node-fetch is used for external API calls
 const fetch = require('node-fetch'); 
 
 const app = express();
-const PORT = 3000;
+// Using environment variable PORT for hosting, falling back to 3000 locally
+const PORT = process.env.PORT || 3000; 
 
 // Middleware to parse URL-encoded bodies and JSON bodies
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    // MODIFIED: Use a unique filename to prevent collisions (original code used file.originalname which is risky)
+    // MODIFIED: Use a unique filename to prevent collisions
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + path.extname(file.originalname));
   }
@@ -51,10 +52,7 @@ app.get('/download/:filename', (req, res) => {
   res.download(filePath, (err) => {
     if (err) {
       console.error('Download error:', err);
-      // Your original logic here:
-      // fs.unlink(filePath, (unlinkErr) => {
-      //   if (unlinkErr) console.error('Error deleting file:', unlinkErr);
-      // });
+      // Original logic included file deletion here, but we are keeping it simple for now.
       res.status(404).send('File not found or download failed.');
     }
     console.log(`File downloaded: ${req.params.filename}`);
@@ -62,35 +60,41 @@ app.get('/download/:filename', (req, res) => {
 });
 
 // File upload route
-app.post('/upload', upload.single('file'), async (req, res) => { // MODIFIED: ADDED 'async'
+app.post('/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
   
   try {
     const host = req.body.host;
-    // Use the newly generated unique filename
     const filename = req.file.filename; 
 
     // 1. Construct the Full Download URL (fileUrl)
     const fileUrl = `${host}/download/${filename}`;
 
-    let shortenedLink = fileUrl; // Default to full link
+    let shortenedLink = fileUrl; // Default to full link (fallback)
 
-    // 2. Call the TinyURL API
-    const T_URL = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(fileUrl)}`;
+    // 2. Call the is.gd API (New Link Shortener)
+    const ISGD_URL = `https://is.gd/create.php?url=${encodeURIComponent(fileUrl)}&format=json`;
 
     try {
-        const shorteningResponse = await fetch(T_URL);
+        const shorteningResponse = await fetch(ISGD_URL); 
         
         if (shorteningResponse.ok) {
-            // TinyURL returns the raw shortened URL as plain text
-            shortenedLink = await shorteningResponse.text();
+            const data = await shorteningResponse.json();
+            
+            // is.gd returns a JSON object with a 'shorturl' field
+            if (data.shorturl && !data.errormsg) {
+                shortenedLink = data.shorturl;
+            } else {
+                console.warn("is.gd API failed to shorten link. Error:", data.errormsg || 'Unknown reason');
+            }
         } else {
-            console.warn("TinyURL API failed with status:", shorteningResponse.status);
+            console.warn("is.gd API failed with status:", shorteningResponse.status);
         }
     } catch (shorteningError) {
-        console.error("Error connecting to TinyURL:", shorteningError.message);
+        // Catches network/connection errors (likely firewall issue on hosting)
+        console.error("Error connecting to is.gd:", shorteningError.message);
     }
 
     // 3. Generate the QR code as a data URL
@@ -98,9 +102,9 @@ app.post('/upload', upload.single('file'), async (req, res) => { // MODIFIED: AD
     
     // 4. Send all three back to the client
     res.json({ 
-        fileUrl: fileUrl, // Full Link
+        fileUrl: fileUrl, 
         qrCodeUrl: qrCodeUrl,
-        shortenedLink: shortenedLink // Shortened Link (or the full link if API failed)
+        shortenedLink: shortenedLink 
     });
 
   } catch (err) {
